@@ -27,6 +27,8 @@ The app is ad-hoc signed. If you copy it to another Mac, the first launch may ne
 | **Mark as used** | Tells the app you used this password. It is never suggested again, and a new one is shown. |
 | **Clear history…** | Forgets all used passwords, after confirmation. |
 
+Every setting above is kept between launches: length, character types and their minimum counts, the special characters, look-alikes and repeat control. They are saved whenever they change, in the app's own sandboxed preferences (`~/Library/Containers/local.passwordgenerator/Data/Library/Preferences/`), and nothing leaves the Mac. To go back to the defaults, quit the app and run `defaults delete local.passwordgenerator settings`.
+
 ### Repeat control
 
 The password is built in cycles. Each cycle is a random selection of distinct characters, so no character repeats until the cycle is used up.

@@ -12,12 +12,13 @@ struct PasswordGeneratorApp: App {
 }
 
 struct ContentView: View {
-    @State private var options = PasswordOptions()
+    // The settings chosen last time, so character types and their minimum counts are kept between launches.
+    @State private var options = Settings.load().options
     @State private var password = ""
     @State private var error: String?
     @State private var copied = false
-    @State private var fullCycle = true
-    @State private var cycle = 16
+    @State private var fullCycle = Settings.load().fullCycle
+    @State private var cycle = Settings.load().cycle
     @State private var store = UsedPasswordStore(fileURL: UsedPasswordStore.defaultURL())
     @State private var usedCount = 0
     @State private var confirmClear = false
@@ -92,9 +93,9 @@ struct ContentView: View {
         .padding(16)
         .frame(width: 480)
         .onAppear { usedCount = store.count; generate() }
-        .onChange(of: options) { _ in generate() }
-        .onChange(of: fullCycle) { _ in generate() }
-        .onChange(of: cycle) { _ in generate() }
+        .onChange(of: options) { _ in save(); generate() }
+        .onChange(of: fullCycle) { _ in save(); generate() }
+        .onChange(of: cycle) { _ in save(); generate() }
     }
 
     private func row(_ title: String, _ on: Binding<Bool>, _ min: Binding<Int>) -> some View {
@@ -104,6 +105,14 @@ struct ContentView: View {
             Stepper(value: min, in: 0...PasswordOptions.maxLength) { Text("\(min.wrappedValue)").frame(width: 30, alignment: .trailing) }
                 .disabled(!on.wrappedValue)
         }
+    }
+
+    private func save() {
+        var settings = Settings()
+        settings.options = options
+        settings.fullCycle = fullCycle
+        settings.cycle = cycle
+        settings.save()
     }
 
     private func generate() {

@@ -93,4 +93,43 @@ final class UsedStoreTests: XCTestCase {
         try store.clear()
         XCTAssertEqual(store.count, 0)
     }
+
+    // MARK: settings are kept between launches
+
+    private func scratchDefaults() -> UserDefaults {
+        let name = "PasswordCoreTests-\(UUID().uuidString)"
+        let d = UserDefaults(suiteName: name)!
+        addTeardownBlock { d.removePersistentDomain(forName: name) }
+        return d
+    }
+
+    func testSettingsAreSavedAndLoadedBack() {
+        let d = scratchDefaults()
+        var s = Settings()
+        s.options.length = 40
+        s.options.minLower = 6; s.options.minUpper = 6; s.options.minDigits = 6; s.options.minSpecial = 6
+        s.options.useSpecial = false
+        s.options.specialSet = "!@#"
+        s.options.excludeAmbiguous = true
+        s.fullCycle = false; s.cycle = 12
+        s.save(to: d)
+        XCTAssertEqual(Settings.load(from: d), s)
+    }
+
+    func testNothingSavedGivesTheDefaults() {
+        XCTAssertEqual(Settings.load(from: scratchDefaults()), Settings())
+    }
+
+    func testOlderOrDamagedSavedSettingsStillLoad() {
+        let d = scratchDefaults()
+        d.set(Data(#"{"options":{"minLower":4,"length":9999},"cycle":20}"#.utf8), forKey: Settings.key)
+        let s = Settings.load(from: d)
+        XCTAssertEqual(s.options.minLower, 4)                      // what was saved is kept
+        XCTAssertEqual(s.options.length, PasswordOptions.maxLength) // pulled into range
+        XCTAssertEqual(s.options.minUpper, 0)                      // missing: the default
+        XCTAssertTrue(s.fullCycle)
+        XCTAssertEqual(s.cycle, 20)
+        d.set(Data("not json".utf8), forKey: Settings.key)
+        XCTAssertEqual(Settings.load(from: d), Settings())
+    }
 }
