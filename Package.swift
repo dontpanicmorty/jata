@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "PasswordGenerator",
+    name: "Jata",
     platforms: [.macOS(.v13)],
     targets: [
         .target(name: "PasswordCore"),
-        .executableTarget(name: "PasswordGenerator", dependencies: ["PasswordCore"]),
+        .executableTarget(name: "Jata", dependencies: ["PasswordCore"]),
         .testTarget(name: "PasswordCoreTests", dependencies: ["PasswordCore"]),
     ]
 )

@@ -28,6 +28,7 @@ public final class UsedPasswordStore {
     /// Default location: the app's Application Support folder (inside the sandbox container).
     public static func defaultURL() -> URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        // "PasswordGenerator" is the app's earlier name; the folder keeps it so existing history is still found.
         return base.appendingPathComponent("PasswordGenerator/used_hashes.json")
     }
 

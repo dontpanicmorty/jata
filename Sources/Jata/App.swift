@@ -3,10 +3,10 @@ import AppKit
 import PasswordCore
 
 @main
-struct PasswordGeneratorApp: App {
+struct JataApp: App {
     init() { NSApplication.shared.setActivationPolicy(.regular); NSApplication.shared.activate(ignoringOtherApps: true) }
     var body: some Scene {
-        WindowGroup("Password Generator") { ContentView() }
+        WindowGroup("Jaṭā") { ContentView() }
             .windowStyle(.hiddenTitleBar)
             .windowResizability(.contentSize)
     }
@@ -129,8 +129,8 @@ struct ContentView: View {
                     .fill(LinearGradient(colors: [.accentColor, .accentColor.opacity(0.7)],
                                          startPoint: .top, endPoint: .bottom)))
             VStack(alignment: .leading, spacing: 1) {
-                Text("Password Generator").font(.title2.weight(.semibold))
-                Label("Offline: nothing leaves this Mac", systemImage: "lock.shield")
+                Text("Jaṭā").font(.title2.weight(.semibold))
+                Label("Password generator · offline: nothing leaves this Mac", systemImage: "lock.shield")
                     .font(.caption).foregroundStyle(.secondary)
             }
         }

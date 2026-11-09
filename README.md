@@ -1,4 +1,4 @@
-# Password Generator
+# Jaṭā
 
 A standalone, offline macOS desktop app that generates passwords. It is a generator only, not a password manager. It runs as a native window (no browser) and is sandboxed with no network entitlements, so macOS blocks all network access.
 
@@ -8,7 +8,7 @@ Requires macOS 13+ and the Swift toolchain (Xcode or Command Line Tools).
 
 ```sh
 ./build_app.sh
-open "build/Password Generator.app"
+open "build/Jaṭā.app"
 ```
 
 The app is ad-hoc signed. If you copy it to another Mac, the first launch may need right-click → Open.
@@ -58,10 +58,10 @@ This rule narrows the possible passwords slightly compared with fully random cha
 
 ```
 Package.swift
-build_app.sh                 builds build/Password Generator.app
+build_app.sh                 builds build/Jaṭā.app
 entitlements.plist           sandbox on, no network entitlements
 Sources/PasswordCore/        generator and used-password store (no UI)
-Sources/PasswordGenerator/   SwiftUI app
+Sources/Jata/                SwiftUI app
 Tests/PasswordCoreTests/     unit tests
 ```
 
