@@ -15,17 +15,23 @@ The app is ad-hoc signed. If you copy it to another Mac, the first launch may ne
 
 ## Using it
 
+The password is shown at the top, with digits in blue and special characters in orange so it's easy
+to read by eye. Below it, a strength meter rates it (Weak, Fair, Strong, Very strong) from its bits of
+entropy: length × log2 of the number of possible characters.
+
 | Control | What it does |
 |---|---|
+| **Copy** (⇧⌘C) | Copies to the clipboard. The clipboard is cleared after 30 seconds, unless you have copied something else since. |
+| **New** (Return) | Makes a new password. Changing any setting also regenerates. |
+| **Mark as used** (the seal button) | Tells the app you used this password. It is never suggested again, and a new one is shown. |
 | **Length** | 8–256 characters, default 32. Use the slider, text box or stepper. |
-| **Character types** | Turn lowercase, uppercase, digits and special characters on or off. The number beside each is the minimum count of that type. |
-| **Special characters** | Editable set. Whitespace and duplicates are ignored. |
-| **Exclude look-alikes** | Removes `I l 1 O 0 \|` from the pool. |
-| **Repeat control** | See below. |
-| **Generate** (Return) | Makes a new password. Changing any setting also regenerates. |
-| **Copy** | Copies to the clipboard. The clipboard is cleared after 30 seconds, unless you have copied something else since. |
-| **Mark as used** | Tells the app you used this password. It is never suggested again, and a new one is shown. |
+| **Characters** | Switch lowercase, uppercase, digits and special characters on or off. "At least" sets the minimum count of that type. |
+| **Special characters** | Editable set, shown while Special is on. Whitespace and duplicates are ignored. |
+| **Avoid look-alikes** | Removes `I l 1 O 0 \|` from the pool. |
+| **Repeat control** | Under the expandable section at the bottom. See below. |
 | **Clear history…** | Forgets all used passwords, after confirmation. |
+
+Your settings are kept between launches.
 
 Every setting above is kept between launches: length, character types and their minimum counts, the special characters, look-alikes and repeat control. They are saved whenever they change, in the app's own sandboxed preferences (`~/Library/Containers/local.passwordgenerator/Data/Library/Preferences/`), and nothing leaves the Mac. To go back to the defaults, quit the app and run `defaults delete local.passwordgenerator settings`.
 

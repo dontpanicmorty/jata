@@ -132,4 +132,17 @@ final class UsedStoreTests: XCTestCase {
         d.set(Data("not json".utf8), forKey: Settings.key)
         XCTAssertEqual(Settings.load(from: d), Settings())
     }
+
+    func testStrengthRatings() {
+        var o = PasswordOptions()
+        o.length = 32  // 89 characters in the default pool: about 207 bits
+        XCTAssertEqual(o.strength, .veryStrong)
+        XCTAssertEqual(o.entropyBits, 32 * log2(Double(o.poolSize)), accuracy: 0.001)
+        o.useLower = false; o.useUpper = false; o.useSpecial = false; o.length = 8  // digits only: about 27 bits
+        XCTAssertEqual(o.strength, .weak)
+        o.useDigits = false
+        XCTAssertEqual(o.entropyBits, 0)
+        XCTAssertEqual(Strength(bits: 60), .fair)
+        XCTAssertEqual(Strength(bits: 90), .strong)
+    }
 }
