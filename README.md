@@ -28,19 +28,19 @@ entropy: length × log2 of the number of possible characters.
 | **Characters** | Switch lowercase, uppercase, digits and special characters on or off. "At least" sets the minimum count of that type. |
 | **Special characters** | Editable set, shown while Special is on. Whitespace and duplicates are ignored. |
 | **Avoid look-alikes** | Removes `I l 1 O 0 \|` from the pool. |
-| **Repeat control** | Under the expandable section at the bottom. See below. |
+| **Repeats** | When a character may appear again. See below. |
 | **Clear history…** | Forgets all used passwords, after confirmation. |
 
 Your settings are kept between launches.
 
-Every setting above is kept between launches: length, character types and their minimum counts, the special characters, look-alikes and repeat control. They are saved whenever they change, in the app's own sandboxed preferences (`~/Library/Containers/local.passwordgenerator/Data/Library/Preferences/`), and nothing leaves the Mac. To go back to the defaults, quit the app and run `defaults delete local.passwordgenerator settings`.
+Every setting above is kept between launches: length, character types and their minimum counts, the special characters, look-alikes and repeats. They are saved whenever they change, in the app's own sandboxed preferences (`~/Library/Containers/local.passwordgenerator/Data/Library/Preferences/`), and nothing leaves the Mac. To go back to the defaults, quit the app and run `defaults delete local.passwordgenerator settings`.
 
-### Repeat control
+### Repeats
 
 The password is built in cycles. Each cycle is a random selection of distinct characters, so no character repeats until the cycle is used up.
 
-- **Default (use every character once before any repeats):** a cycle is the whole pool, 94 characters with everything enabled. A password shorter than the pool never repeats a character. A longer one is built from full passes through the pool.
-- **Distinct characters before a repeat:** turn the default off to set a smaller cycle, for example 10.
+- **After all are used (default):** a cycle is the whole pool, 89 characters with everything enabled. A password shorter than the pool never repeats a character. A longer one is built from full passes through the pool.
+- **After a set number:** a smaller cycle, for example 10. Set it with the text box or stepper under **Distinct characters before a repeat**. Changing the number switches to this mode on its own.
 - A character is never repeated back-to-back across a cycle boundary.
 
 This rule narrows the possible passwords slightly compared with fully random characters. At 32+ characters the result is still very strong.

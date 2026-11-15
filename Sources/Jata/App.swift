@@ -6,8 +6,9 @@ import PasswordCore
 struct JataApp: App {
     init() { NSApplication.shared.setActivationPolicy(.regular); NSApplication.shared.activate(ignoringOtherApps: true) }
     var body: some Scene {
+        // A standard title bar: the window buttons sit in their own strip, so content can never scroll under them.
         WindowGroup("Jaṭā") { ContentView() }
-            .windowStyle(.hiddenTitleBar)
+            .windowToolbarStyle(.unified(showsTitle: true))
             .windowResizability(.contentSize)
     }
 }
@@ -93,48 +94,39 @@ struct ContentView: View {
     @State private var store = UsedPasswordStore(fileURL: UsedPasswordStore.defaultURL())
     @State private var usedCount = 0
     @State private var confirmClear = false
-    @State private var showAdvanced = false
 
     private var maxCycle: Int { max(options.poolSize, 1) }
 
+    // Layout: the password stays pinned at the top and the history line at the bottom; only the
+    // settings between them scroll, and they scroll inside their own clipped area.
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                header
-                passwordCard
-                lengthCard
-                charactersCard
-                advancedCard
-                footer
+        VStack(spacing: 0) {
+            passwordCard
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                .padding(.bottom, 14)
+            Divider()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    lengthCard
+                    charactersCard
+                    repeatCard
+                }
+                .padding(20)
             }
-            .padding(20)
+            .clipped()
+            Divider()
+            footer
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
         }
-        .frame(width: 500, height: 720)
+        .frame(width: 500, height: 700)
         .background(Color(nsColor: .windowBackgroundColor))
+        .navigationSubtitle("Offline password generator")
         .onAppear { usedCount = store.count; generate() }
         .onChange(of: options) { _ in save(); generate() }
         .onChange(of: fullCycle) { _ in save(); generate() }
         .onChange(of: cycle) { _ in save(); generate() }
-    }
-
-    // MARK: header
-
-    private var header: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "key.fill")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 38, height: 38)
-                .background(RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(LinearGradient(colors: [.accentColor, .accentColor.opacity(0.7)],
-                                         startPoint: .top, endPoint: .bottom)))
-            VStack(alignment: .leading, spacing: 1) {
-                Text("Jaṭā").font(.title2.weight(.semibold))
-                Label("Password generator · offline: nothing leaves this Mac", systemImage: "lock.shield")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-        }
-        .padding(.top, 8)
     }
 
     // MARK: the password
@@ -287,27 +279,41 @@ struct ContentView: View {
         }
     }
 
-    private var advancedCard: some View {
-        Card(title: nil) {
-            DisclosureGroup(isExpanded: $showAdvanced) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Toggle("Use every character once before any repeats", isOn: $fullCycle)
-                        .toggleStyle(.switch)
-                    HStack {
-                        Text("Distinct characters before a repeat")
-                        Spacer()
-                        Text("\(Swift.min(cycle, maxCycle))").font(.system(.body, design: .monospaced))
-                        Stepper("", value: $cycle, in: 1...maxCycle).labelsHidden()
-                    }
-                    .disabled(fullCycle)
-                    .opacity(fullCycle ? 0.5 : 1)
-                    Text("Passwords shorter than the \(options.poolSize)-character pool never repeat a character "
-                         + "in the default mode.")
-                        .font(.caption).foregroundStyle(.secondary)
+    /// The count shown and edited in the repeat card. In the default mode it shows the whole pool. Changing
+    /// it (stepper or typing) always works: it switches to the set-number mode and keeps the value in range.
+    private var cycleBinding: Binding<Int> {
+        Binding(get: { fullCycle ? maxCycle : Swift.min(Swift.max(cycle, 1), maxCycle) },
+                set: { newValue in
+                    cycle = Swift.min(Swift.max(newValue, 1), maxCycle)
+                    if fullCycle { fullCycle = false }
+                })
+    }
+
+    private var repeatCard: some View {
+        Card(title: "Repeats") {
+            VStack(alignment: .leading, spacing: 12) {
+                Picker("A character can repeat", selection: $fullCycle) {
+                    Text("After all \(maxCycle) are used").tag(true)
+                    Text("After a set number").tag(false)
                 }
-                .padding(.top, 8)
-            } label: {
-                Label("Repeat control", systemImage: "repeat").font(.body.weight(.medium))
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                HStack(spacing: 12) {
+                    Text("Distinct characters before a repeat")
+                    Spacer()
+                    TextField("", value: cycleBinding, format: .number)
+                        .multilineTextAlignment(.center)
+                        .font(.system(.body, design: .monospaced))
+                        .frame(width: 52)
+                        .textFieldStyle(.roundedBorder)
+                    Stepper("", value: cycleBinding, in: 1...maxCycle).labelsHidden()
+                }
+                Text(fullCycle
+                     ? "Every one of the \(maxCycle) possible characters is used once before any repeats, so a password "
+                       + "of \(maxCycle) characters or fewer never repeats one."
+                     : "No character repeats within each run of \(cycleBinding.wrappedValue) characters.")
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding(12)
         }
@@ -315,8 +321,8 @@ struct ContentView: View {
 
     private var footer: some View {
         HStack {
-            Label("\(usedCount) used password\(usedCount == 1 ? "" : "s") remembered (hashes only)",
-                  systemImage: "clock.arrow.circlepath")
+            Label("\(usedCount) used password\(usedCount == 1 ? "" : "s") remembered (hashes only) · nothing leaves this Mac",
+                  systemImage: "lock.shield")
                 .font(.caption).foregroundStyle(.secondary)
             Spacer()
             Button("Clear history…", role: .destructive) { confirmClear = true }
